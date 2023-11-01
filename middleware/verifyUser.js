@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const verifyUser = async (req, res, next) => {
   const token = req.cookies.token;
-  console.log(req.cookies);
+
   if (!token) {
     return res.status(400).json({ message: "You must be logged in" });
   }

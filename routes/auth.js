@@ -8,13 +8,12 @@ const router = express.Router();
 router.post("/signup", Signup);
 router.post("/login", Login);
 router.get("/logout", (req, res) => {
-  console.log(res.cookie.token);
   res.clearCookie("token");
-  console.log(res.cookie.token);
   res.sendStatus(200);
 });
+
+// Used to add protected routes on client side
 router.get("/verify", verifyUser, (req, res) => {
-  console.log(req.user);
   res.sendStatus(200);
 });
 

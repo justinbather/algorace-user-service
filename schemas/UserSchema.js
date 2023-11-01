@@ -13,6 +13,7 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
+//Prevents password from getting rehashed everytime a user is saved
 UserSchema.pre("save", async function (next) {
   const user = this;
   if (!user.isModified("password")) {
