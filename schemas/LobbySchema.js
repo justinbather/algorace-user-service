@@ -7,6 +7,12 @@ const LobbySchema = new mongoose.Schema({
   },
   name: String,
   settings: Object,
+  problems: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Problem'
+    }
+  ]
 });
 
 const Lobby = mongoose.model("Lobby", LobbySchema);

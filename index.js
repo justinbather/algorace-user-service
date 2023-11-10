@@ -35,12 +35,14 @@ io.on("connection", (socket) => {
     console.log("created lobby: ", lobby);
   });
 
-  socket.on("join_lobby", (lobby) => {
+  socket.on("join_lobby", async (lobby) => {
     socket.join(lobby);
     console.log("Joined lobby: ", lobby);
+    const lobbyData = await Lobby.find({ name: lobby }).populate('problems').exec()
+    console.log(lobbyData)
     const count = io.engine.clientsCount;
     console.log("num clients: ", count);
-    // io.emit("user_joined", "A new user joined");
+    io.to(lobby).emit("user_joined", lobbyData);
   });
 
   socket.on("disconnect", () => {
@@ -61,7 +63,9 @@ app.use("/problems", problems);
 app.post("/lobby", verifyUser, async (req, res) => {
   const { name, settings } = req.body;
   try {
-    const lobby = await Lobby.create({ user: req.user, name, settings });
+    const lobby = await Lobby.create({ user: req.user, name });
+    lobby.problems.push(settings.selectedProblems)
+    await lobby.save()
 
     return res.status(201).json({ lobby });
   } catch (err) {
