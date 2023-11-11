@@ -11,8 +11,13 @@ const LobbySchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Problem'
+    }],
+  users: [
+    {
+      type: Object
     }
   ]
+
 });
 
 const Lobby = mongoose.model("Lobby", LobbySchema);

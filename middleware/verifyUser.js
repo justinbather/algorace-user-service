@@ -21,6 +21,7 @@ const verifyUser = async (req, res, next) => {
         if (user) {
           //store user into this request
           req.user = user._id;
+          req.username = user.username
 
           //give control to next middleware
           return next();
