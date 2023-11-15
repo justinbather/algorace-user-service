@@ -17,7 +17,11 @@ const LobbySchema = new mongoose.Schema({
     {
       type: Object
     }
-  ]
+  ],
+  currentRound: {
+    type: Number,
+    default: 0
+  }
 
 });
 

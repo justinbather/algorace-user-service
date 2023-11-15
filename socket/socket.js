@@ -5,6 +5,7 @@ const Lobby = require("../schemas/LobbySchema");
 const User = require('../schemas/UserSchema')
 const app = express();
 const PORT = 8000
+const ProblemCode = require('../schemas/ProblemCodeSchema')
 
 
 const socketServer = http.createServer(app);
@@ -114,6 +115,26 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on('start_match', async (data) => {
+    const { username, lobby } = data
+
+    try {
+
+      const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').populate('host').exec()
+
+      console.log(lobbyObj.host.username === username, lobbyObj.host.username, username)
+      if (lobbyObj && lobbyObj.host.username === username) {
+
+        console.log('starting match', lobbyObj.problems, lobbyObj.host)
+        const currentProblem = await ProblemCode.findOne({ title: lobbyObj.problems[0].title, language: 'javascript' })
+        io.to(lobby).emit('begin_match', { lobbyObj, roundNumber: 1, currentProblem })
+      }
+    } catch (err) {
+      // Emit error here
+      console.log('error starting match', err)
+    }
+
+  })
 
   socket.on('testing', () => {
     console.log(socket.id)
