@@ -1,4 +1,3 @@
-const { mongo } = require("mongoose");
 const mongoose = require("mongoose");
 
 const LobbySchema = new mongoose.Schema({
@@ -13,6 +12,7 @@ const LobbySchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Problem'
     }],
+
   users: [
     {
       type: Object

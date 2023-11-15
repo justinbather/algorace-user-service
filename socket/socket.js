@@ -32,25 +32,6 @@ const checkAllReady = (lobbyObj) => {
 
 
 io.on("connection", (socket) => {
-  console.log("Socket connected: ", socket.id);
-
-  socket.on("create_lobby", (data) => {
-
-    const { user, lobby, problems } = data
-
-    if (!lobbies[lobby]) {
-      const newLobby = {
-        host: user.username,
-        problems,
-        users: [{ user: user.username, id: socket.id }],
-      }
-
-      lobbies[lobby] = newLobby
-
-    }
-
-  });
-
 
   socket.on("join_lobby", async (data) => {
     const { username, lobby } = data;
@@ -134,6 +115,45 @@ io.on("connection", (socket) => {
       console.log('error starting match', err)
     }
 
+  })
+
+  socket.on('user_compiling', async (data) => {
+    const { username, lobby } = data;
+
+    try {
+      io.to(lobby).emit('user_compiling', { username })
+
+    } catch (err) {
+      //Emit err here
+      console.log(err)
+    }
+
+  })
+
+
+  socket.on('user_completed', async (data) => {
+    const { username, lobby } = data;
+
+    try {
+
+      const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').exec()
+      if (lobbyObj) {
+        lobbyObj.currentRound = ++lobbyObj.currentRound
+        const savedLobby = await lobbyObj.save()
+        console.log(savedLobby.currentRound)
+        if (savedLobby.currentRound > savedLobby.problems.length) {
+
+          console.log('last round completed')
+          io.to(lobby).emit('game_completed', (savedLobby))
+          io.to(lobby).emit('game_completed', ({ savedLobby, winner: username }))
+        } else {
+          io.to(lobby).emit('round_completed', ({ savedLobby, winner: username }))
+          console.log('next round')
+        }
+      }
+    } catch (err) {
+      console.log(err)
+    }
   })
 
   socket.on('testing', () => {
