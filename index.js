@@ -4,7 +4,7 @@ const http = require("http");
 const socketIo = require("socket.io");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
-
+const User = require('./schemas/UserSchema.js')
 const auth = require("./routes/auth");
 const problems = require("./routes/problems");
 const verifyUser = require("./middleware/verifyUser");
@@ -34,7 +34,8 @@ app.post("/lobby", verifyUser, async (req, res) => {
     if (exisiting) {
       return res.status(400).json({ message: "Lobby already exisits with that name" })
     }
-    const lobby = await Lobby.create({ user: req.user, name });
+    const host = await User.findById(req.user)
+    const lobby = await Lobby.create({ name, host });
     lobby.problems.push(selectedProblems)
     await lobby.save()
 

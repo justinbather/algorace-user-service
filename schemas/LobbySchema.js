@@ -1,9 +1,10 @@
+const { mongo } = require("mongoose");
 const mongoose = require("mongoose");
 
 const LobbySchema = new mongoose.Schema({
   host: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User'
   },
   name: String,
   settings: Object,
