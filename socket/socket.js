@@ -51,28 +51,23 @@ io.on("connection", (socket) => {
   });
 
 
-
   socket.on("join_lobby", async (data) => {
     const { username, lobby } = data;
     console.log('---------------------join lobby called');
 
     try {
-      let lobbyObj = await Lobby.findOne({ name: lobby });
+      const result = await Lobby.findOneAndUpdate(
+        { name: lobby, 'users.username': { $ne: username } }, // Ensure username is not in the array
+        { $addToSet: { users: { username, isReady: false } } },
+        { new: true }
+      );
 
-      if (lobbyObj) {
-
-        if (!lobbyObj.users.some(user => user.username === username)) {
-          console.log('user not found in lobby, adding to array')
-          lobbyObj.users.push({ username, isReady: false })
-          const savedLobby = await lobbyObj.save()
-          socket.join(savedLobby.name);
-          socket.emit('successful_enter', savedLobby);
-          io.emit('user_joined', savedLobby);
-        } else {
-          console.log('Prevented user from being duplicated')
-        }
+      if (result) {
+        socket.join(result.name);
+        socket.emit('successful_enter', result);
+        io.emit('user_joined', result);
       } else {
-        socket.emit('error', 'error joining this room')
+        console.log('Prevented user from being duplicated');
       }
     } catch (error) {
       console.error('Error joining lobby:', error);
@@ -85,53 +80,39 @@ io.on("connection", (socket) => {
     const { username, lobby } = data;
 
     try {
-      const lobbyObj = await Lobby.findOne({ name: lobby }).populate('users');
+      const savedLobby = await Lobby.findOneAndUpdate(
+        { name: lobby, 'users.username': username },
+        { $set: { 'users.$.isReady': true } },
+        { new: true }
+      );
 
-      if (lobbyObj) {
-        lobbyObj.users.forEach((user) => {
-          if (user.username === username) {
-            user.isReady = true
-            return;
-          }
-        })
+      socket.emit('successful_ready', { isReady: true });
+      io.to(lobby).emit('user_ready', savedLobby);
 
-        const savedLobby = await lobbyObj.save();
-
-        socket.emit('successful_ready', { isReady: true })
-        io.to(lobby).emit('user_ready', savedLobby);
-
-        console.log('sending lobby object after readying: ', lobbyObj);
-      } else {
-        console.log('Error: Lobby not found');
-      }
+      console.log('sending lobby object after readying: ', savedLobby);
+      console.log(socket.id, username);
     } catch (error) {
       console.error('Error handling user_ready event:', error);
     }
-  })
+  });
 
   socket.on('user_unready', async (data) => {
     const { username, lobby } = data;
 
     try {
-      const lobbyObj = await Lobby.findOne({ name: lobby })
+      const savedLobby = await Lobby.findOneAndUpdate(
+        { name: lobby, 'users.username': username },
+        { $set: { 'users.$.isReady': false } },
+        { new: true }
+      );
 
-      if (lobbyObj) {
-        lobbyObj.users.forEach((user) => {
-          if (user.username === username) {
-            user.isReady = false
-            return;
-          }
-        })
-      }
-      const savedLobby = await lobbyObj.save()
-      socket.emit('successful_ready', { isReady: false })
-      io.to(lobby).emit('user_ready', savedLobby)
-      console.log(savedLobby)
+      socket.emit('successful_ready', { isReady: false });
+      io.to(lobby).emit('user_ready', savedLobby);
+      console.log(savedLobby);
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  })
-
+  });
 
 
   socket.on('testing', () => {
