@@ -14,7 +14,8 @@ router.get("/logout", (req, res) => {
 
 // Used to add protected routes on client side
 router.get("/verify", verifyUser, (req, res) => {
-  res.sendStatus(200);
+
+  res.status(200).json({ userData: { username: req.username, userId: req.user } });
 });
 
 module.exports = router;
