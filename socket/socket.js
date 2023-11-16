@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
         { name: lobby, 'users.username': { $ne: username } }, // Ensure username is not in the array
         { $addToSet: { users: { username, isReady: false } } },
         { new: true }
-      );
+      ).populate('problems').exec();
 
       if (result) {
         socket.join(result.name);
@@ -68,6 +68,13 @@ io.on("connection", (socket) => {
         { new: true }
       );
 
+      if (savedLobby.users.every((user) => user.isReady === true) && savedLobby.started) {
+        console.log('all users ready after round')
+        savedLobby.roundNumber = savedLobby.roundNumber + 1
+        const updatedLobbyRound = await savedLobby.save()
+        const currentProblem = await ProblemCode.findOne({ title: savedLobby.problems[updatedLobbyRound.roundNumber].title, language: 'javascript' })
+        io.to(lobby).emit('new_round', { lobbyObj: updatedLobbyRound, roundNumber: savedLobby.roundNumber, currentProblem })
+      }
       socket.emit('successful_ready', { isReady: true });
       io.to(lobby).emit('user_ready', savedLobby);
 
@@ -106,6 +113,8 @@ io.on("connection", (socket) => {
       console.log(lobbyObj.host.username === username, lobbyObj.host.username, username)
       if (lobbyObj && lobbyObj.host.username === username) {
 
+        lobbyObj.started = true
+        const savedLobby = await lobbyObj.save
         console.log('starting match', lobbyObj.problems, lobbyObj.host)
         const currentProblem = await ProblemCode.findOne({ title: lobbyObj.problems[0].title, language: 'javascript' })
         io.to(lobby).emit('begin_match', { lobbyObj, roundNumber: 1, currentProblem })

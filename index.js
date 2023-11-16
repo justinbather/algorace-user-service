@@ -36,10 +36,14 @@ app.post("/lobby", verifyUser, async (req, res) => {
     }
     const host = await User.findById(req.user)
     const lobby = await Lobby.create({ name, host });
-    lobby.problems.push(selectedProblems)
-    await lobby.save()
+    console.log(selectedProblems)
+    selectedProblems.forEach((problem) => {
+      lobby.problems.push(problem)
+    })
+    const savedLobby = await lobby.save()
 
-    return res.status(201).json({ lobby });
+    console.log(savedLobby)
+    return res.status(201).json({ savedLobby });
   } catch (err) {
     console.log(err)
 
