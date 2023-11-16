@@ -35,7 +35,6 @@ io.on("connection", (socket) => {
 
   socket.on("join_lobby", async (data) => {
     const { username, lobby } = data;
-    console.log('---------------------join lobby called');
 
     try {
       const result = await Lobby.findOneAndUpdate(
@@ -58,7 +57,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("user_ready", async (data) => {
-    console.log('--------------user ready called');
     const { username, lobby } = data;
 
     try {
@@ -69,7 +67,6 @@ io.on("connection", (socket) => {
       );
 
       if (savedLobby.users.every((user) => user.isReady === true) && savedLobby.started) {
-        console.log('all users ready after round')
         savedLobby.roundNumber = savedLobby.roundNumber + 1
         const updatedLobbyRound = await savedLobby.save()
         const currentProblem = await ProblemCode.findOne({ title: savedLobby.problems[updatedLobbyRound.roundNumber].title, language: 'javascript' })
@@ -78,8 +75,6 @@ io.on("connection", (socket) => {
       socket.emit('successful_ready', { isReady: true });
       io.to(lobby).emit('user_ready', savedLobby);
 
-      console.log('sending lobby object after readying: ', savedLobby);
-      console.log(socket.id, username);
     } catch (error) {
       console.error('Error handling user_ready event:', error);
     }
@@ -97,7 +92,6 @@ io.on("connection", (socket) => {
 
       socket.emit('successful_ready', { isReady: false });
       io.to(lobby).emit('user_ready', savedLobby);
-      console.log(savedLobby);
     } catch (err) {
       console.log(err);
     }
@@ -110,12 +104,10 @@ io.on("connection", (socket) => {
 
       const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').populate('host').exec()
 
-      console.log(lobbyObj.host.username === username, lobbyObj.host.username, username)
       if (lobbyObj && lobbyObj.host.username === username) {
 
         lobbyObj.started = true
         const savedLobby = await lobbyObj.save
-        console.log('starting match', lobbyObj.problems, lobbyObj.host)
         const currentProblem = await ProblemCode.findOne({ title: lobbyObj.problems[0].title, language: 'javascript' })
         io.to(lobby).emit('begin_match', { lobbyObj, roundNumber: 1, currentProblem })
       }
@@ -123,22 +115,7 @@ io.on("connection", (socket) => {
       // Emit error here
       console.log('error starting match', err)
     }
-
   })
-
-  socket.on('user_compiling', async (data) => {
-    const { username, lobby } = data;
-
-    try {
-      io.to(lobby).emit('user_compiling', { username })
-
-    } catch (err) {
-      //Emit err here
-      console.log(err)
-    }
-
-  })
-
 
   socket.on('user_completed', async (data) => {
     const { username, lobby } = data;
@@ -147,26 +124,30 @@ io.on("connection", (socket) => {
 
       const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').exec()
       if (lobbyObj) {
-        lobbyObj.currentRound = ++lobbyObj.currentRound
-        const savedLobby = await lobbyObj.save()
-        console.log(savedLobby.currentRound)
-        if (savedLobby.currentRound > savedLobby.problems.length) {
-
-          console.log('last round completed')
-          io.to(lobby).emit('game_completed', (savedLobby))
-          io.to(lobby).emit('game_completed', ({ savedLobby, winner: username }))
-        } else {
-          io.to(lobby).emit('round_completed', ({ savedLobby, winner: username }))
-          console.log('next round')
-        }
+        io.to(lobby).emit('round_completed', ({ lobbyObj, winner: username }))
       }
     } catch (err) {
       console.log(err)
     }
   })
 
-  socket.on('testing', () => {
-    console.log(socket.id)
+  socket.on('user_ready_next_match', async (data) => {
+    const { username, lobby } = data
+
+    try {
+      const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').exec()
+      if (lobbyObj) {
+
+        lobbyObj.currentRound = lobbyObj.currentRound + 1
+        const savedLobby = await lobbyObj.save()
+        console.log(savedLobby.problems[savedLobby.currentRound].title)
+        const currentProblem = await ProblemCode.findOne({ title: savedLobby.problems[savedLobby.currentRound].title, language: 'javascript' })
+        console.log('next round')
+        io.to(lobby).emit('next_round', { lobbyObj: savedLobby, roundNumber: savedLobby.roundNumber, currentProblem })
+      }
+    } catch (err) {
+      console.log(err)
+    }
   })
 
   socket.on("disconnect", async (lobby) => {
