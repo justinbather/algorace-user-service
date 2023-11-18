@@ -129,9 +129,14 @@ io.on("connection", (socket) => {
       if (lobbyObj) {
 
         lobbyObj.currentRound = lobbyObj.currentRound + 1
+
         const savedLobby = await lobbyObj.save()
-        console.log('should still be false', savedLobby)
-        io.to(lobby).emit('round_completed', ({ savedLobby, winner: username }))
+        console.log(`now going into round ${savedLobby.currentRound} out of ${savedLobby.numRounds} rounds`)
+        if (savedLobby.numRounds < (savedLobby.currentRound + 1)) {
+          io.to(lobby).emit('game_completed')
+        } else {
+          io.to(lobby).emit('round_completed', ({ savedLobby, winner: username }))
+        }
       }
     } catch (err) {
       console.log(err)
