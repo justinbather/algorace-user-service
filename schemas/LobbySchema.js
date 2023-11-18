@@ -22,6 +22,10 @@ const LobbySchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  numRounds: {
+    type: Number,
+    required: true
+  },
   started: {
     type: Boolean,
     default: false
