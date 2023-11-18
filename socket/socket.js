@@ -104,10 +104,13 @@ io.on("connection", (socket) => {
 
       const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').populate('host').exec()
 
+      console.log('should be true', lobbyObj)
       if (lobbyObj && lobbyObj.host.username === username) {
 
         lobbyObj.started = true
-        const savedLobby = await lobbyObj.save
+        lobbyObj.users = lobbyObj.users.map(user => ({ ...user, isReady: false }));
+        const savedLobby = await lobbyObj.save()
+        console.log('should be false', savedLobby)
         const currentProblem = await ProblemCode.findOne({ title: lobbyObj.problems[0].title, language: 'javascript' })
         io.to(lobby).emit('begin_match', { lobbyObj, roundNumber: 1, currentProblem })
       }
@@ -124,7 +127,11 @@ io.on("connection", (socket) => {
 
       const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').exec()
       if (lobbyObj) {
-        io.to(lobby).emit('round_completed', ({ lobbyObj, winner: username }))
+
+        lobbyObj.currentRound = lobbyObj.currentRound + 1
+        const savedLobby = await lobbyObj.save()
+        console.log('should still be false', savedLobby)
+        io.to(lobby).emit('round_completed', ({ savedLobby, winner: username }))
       }
     } catch (err) {
       console.log(err)
@@ -135,15 +142,22 @@ io.on("connection", (socket) => {
     const { username, lobby } = data
 
     try {
-      const lobbyObj = await Lobby.findOne({ name: lobby }).populate('problems').exec()
+      const lobbyObj = await Lobby.findOneAndUpdate(
+        { name: lobby, 'users.username': username }, // Find the lobby with the specified username
+        { $set: { 'users.$.isReady': true } }, // Update the 'isReady' field of the matched user
+        { new: true }
+      ).populate('problems').exec()
       if (lobbyObj) {
 
-        lobbyObj.currentRound = lobbyObj.currentRound + 1
         const savedLobby = await lobbyObj.save()
-        console.log(savedLobby.problems[savedLobby.currentRound].title)
+        console.log(savedLobby)
         const currentProblem = await ProblemCode.findOne({ title: savedLobby.problems[savedLobby.currentRound].title, language: 'javascript' })
-        console.log('next round')
-        io.to(lobby).emit('next_round', { lobbyObj: savedLobby, roundNumber: savedLobby.roundNumber, currentProblem })
+        if (savedLobby.users.every((user) => (user.isReady === true))) {
+          console.log(' all users ready')
+          io.to(lobby).emit('next_round', { lobbyObj: savedLobby, roundNumber: savedLobby.roundNumber, currentProblem })
+        } else {
+          console.log('waiting for other users to ready')
+        }
       }
     } catch (err) {
       console.log(err)
