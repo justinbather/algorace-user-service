@@ -28,7 +28,7 @@ const Login = async (req, res) => {
         httpOnly: true,
         withCredentials: true,
         domain: `https://algorace-frontend.vercel.app`,
-        sameSite: none,
+        sameSite: None,
         secure: true
       });
       return res.status(200).json({ message: "User logged in successfully" });
