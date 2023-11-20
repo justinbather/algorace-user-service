@@ -22,14 +22,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", '*');
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
-  next();
-});
-//app.use(cors({ origin: 'https://algorace-frontend-l7tfhxrpf-justinbather.vercel.app', credentials: true }))
+app.use(cors({ origin: 'https://algorace-frontend.vercel.app', credentials: true }))
 
 app.use("/auth", auth);
 
