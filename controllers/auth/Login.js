@@ -1,6 +1,7 @@
 const createToken = require("../../config/createToken");
 const User = require("../../schemas/UserSchema");
 const bcrypt = require("bcryptjs");
+require('dotenv').config();
 
 const Login = async (req, res) => {
   try {
@@ -27,7 +28,7 @@ const Login = async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true,
         withCredentials: true,
-        domain: `algorace-user-service-c4f17757eccb.herokuapp.com`,
+        domain: `${process.env.COOKIE_DOMAIN}`,
         sameSite: 'None',
         secure: true
       });
