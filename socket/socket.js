@@ -13,7 +13,7 @@ const socketServer = http.createServer(app);
 
 const io = socketIo(socketServer, {
   cors: {
-    origin: "https://algorace-frontend-l7tfhxrpf-justinbather.vercel.app",
+    origin: "https://algorace-frontend.vercel.app",
   },
 });
 
