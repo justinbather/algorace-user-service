@@ -80,5 +80,5 @@ app.get('/lobby/:lobbyName', verifyUser, async (req, res) => {
   }
 })
 
-app.listen(PORT, () => console.log("Server running on port 8080!"));
+//app.listen(PORT, () => console.log("Server running on port 8080!"));
 socketServer.listen(SOCKET_PORT, () => console.log("Socket server listening on 8000"))
