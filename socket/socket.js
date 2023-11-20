@@ -4,7 +4,7 @@ const http = require('http');
 const Lobby = require("../schemas/LobbySchema");
 const User = require('../schemas/UserSchema')
 const app = express();
-const PORT = 8000
+const PORT = process.env.PORT || 8000
 const ProblemCode = require('../schemas/ProblemCodeSchema')
 
 
