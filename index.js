@@ -20,7 +20,7 @@ const SOCKET_PORT = process.env.SOCKET_PORT || 8000;
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: true, credentials: true }))
+app.use(cors({ origin: 'https://algorace-frontend-l7tfhxrpf-justinbather.vercel.app', credentials: true }))
 
 app.use("/auth", auth);
 
