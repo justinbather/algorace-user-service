@@ -27,6 +27,7 @@ const Login = async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true,
         withCredentials: true,
+        domain: `https://algorace-frontend.vercel.app`
       });
       return res.status(200).json({ message: "User logged in successfully" });
     }
