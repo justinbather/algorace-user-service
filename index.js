@@ -9,14 +9,14 @@ const auth = require("./routes/auth");
 const problems = require("./routes/problems");
 const verifyUser = require("./middleware/verifyUser");
 const Lobby = require("./schemas/LobbySchema");
-
+require('dotenv').config()
 const socketServer = require('./socket/socket.js')
 
 connectDB();
 
 const app = express();
-const PORT = 8080;
-const SOCKET_PORT = 8000;
+const PORT = process.env.PORT || 8080;
+const SOCKET_PORT = process.env.SOCKET_PORT || 8000;
 
 app.use(express.json());
 app.use(cookieParser());
