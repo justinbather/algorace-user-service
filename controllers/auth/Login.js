@@ -32,6 +32,7 @@ const Login = async (req, res) => {
         sameSite: 'None',
         secure: true
       });
+      console.log(process.env.COOKIE_DOMAIN)
       console.log('set cookies successfully', res.cookie.token)
       return res.status(200).json({ message: "User logged in successfully" });
     }
