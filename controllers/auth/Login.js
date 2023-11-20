@@ -28,7 +28,7 @@ const Login = async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true,
         withCredentials: true,
-        domain: `https://algorace-user-service-c4f17757eccb.herokuapp.com`,
+        domain: 'algorace-user-service-c4f17757eccb.herokuapp.com',
         sameSite: 'None',
         secure: true
       });
