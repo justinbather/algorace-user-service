@@ -27,7 +27,7 @@ const Login = async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true,
         withCredentials: true,
-        domain: `algorace-frontend.vercel.app`,
+        domain: `algorace-user-service-c4f17757eccb.herokuapp.com`,
         sameSite: 'None',
         secure: true
       });
