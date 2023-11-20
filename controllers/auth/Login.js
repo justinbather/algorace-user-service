@@ -32,7 +32,7 @@ const Login = async (req, res) => {
         sameSite: 'None',
         secure: true
       });
-      console.log('set cookies successfully', token)
+      console.log('set cookies successfully', res.cookie)
       return res.status(200).json({ message: "User logged in successfully" });
     }
   } catch (err) {
