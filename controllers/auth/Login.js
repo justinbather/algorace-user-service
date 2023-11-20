@@ -28,7 +28,7 @@ const Login = async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true,
         withCredentials: true,
-        domain: `${process.env.COOKIE_DOMAIN}`,
+        domain: `.herokuapp.com`,
         sameSite: 'None',
         secure: true
       });
