@@ -16,13 +16,13 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-const SOCKET_PORT = process.env.PORT || 8000;
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000'
 
 app.use(express.json());
 app.use(cookieParser());
 
 
-app.use(cors({ origin: 'https://algorace-frontend.vercel.app', credentials: true }))
+app.use(cors({ origin: CLIENT_URL, credentials: true }))
 
 app.use("/auth", auth);
 

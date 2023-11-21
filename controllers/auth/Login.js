@@ -25,16 +25,24 @@ const Login = async (req, res) => {
       return res.status(400).json({ message: "Incorrect email or password" });
     } else {
       const token = createToken(user._id);
-      res.cookie("token", token, {
-        httpOnly: true,
-        withCredentials: true,
-        domain: 'algorace-user-service-c4f17757eccb.herokuapp.com',
-        sameSite: 'None',
-        secure: true
-      });
-      console.log(process.env.COOKIE_DOMAIN)
-      console.log('set cookies successfully', res.cookie.token)
-      return res.status(200).json({ message: "User logged in successfully" });
+      if (process.env.NODE_ENV === 'production') {
+        res.cookie("token", token, {
+          httpOnly: true,
+          withCredentials: true,
+          domain: 'algorace-user-service-c4f17757eccb.herokuapp.com',
+          sameSite: 'None',
+          secure: true
+        });
+        return res.status(200).json({ message: "User logged in successfully" });
+
+      } else {
+        res.cookie("token", token, {
+          httpOnly: true,
+          withCredentials: true,
+        });
+        return res.status(200).json({ message: "User logged in successfully" });
+
+      }
     }
   } catch (err) {
     console.log(err)
