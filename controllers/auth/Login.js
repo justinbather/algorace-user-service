@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const Login = async (req, res) => {
   try {
-    console.log(req.body);
     const username = req.body.username;
     const password = req.body.password;
 
@@ -45,7 +44,6 @@ const Login = async (req, res) => {
       }
     }
   } catch (err) {
-    console.log(err)
     return res
       .status(500)
       .json({ message: "Error logging in user", error: err });
