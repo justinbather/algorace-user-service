@@ -9,12 +9,10 @@ const getAllProblems = async (req, res) => {
     ).exec();
 
     if (!problems) {
-      console.log("no problems found");
     } else {
       return res.status(200).json({ success: true, problems });
     }
   } catch (err) {
-    console.log(err);
     return res.status(500).json({ success: false, error: err });
   }
 };

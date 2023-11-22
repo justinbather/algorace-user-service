@@ -11,7 +11,6 @@ const getProblem = async (req, res) => {
       language: langParam,
     });
     if (!problem) {
-      console.log("Problem not found");
       return res.status(400).json({ message: "Problem not found" });
     } else {
       return res.status(200).json({

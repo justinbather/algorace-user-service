@@ -12,7 +12,6 @@ const verifyUser = async (req, res, next) => {
   try {
     jwt.verify(token, process.env.JWT_HASH, async (err, data) => {
       if (err) {
-        console.error(err);
         return res.status(400).json({ message: "Invalid token" });
       } else {
         //Token stores user id when created
