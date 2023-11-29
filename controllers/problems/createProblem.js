@@ -1,16 +1,13 @@
 const Problem = require("../../schemas/ProblemSchema");
+const ProblemCode = require("../../schemas/ProblemCodeSchema")
 
 const createProblem = async (req, res) => {
   const { title, category, difficulty, starterCode } = req.body;
 
   try {
-    const problem = await Problem.create({
-      title: title,
-      category: category,
-      difficulty: difficulty,
-      starterCode: starterCode,
-    });
 
+    const problem = await ProblemCode.create(req.body)
+    console.log(problem)
     return res.status(201).json({ success: true, problem });
   } catch (err) {
     return res
